@@ -4,10 +4,12 @@
 Usage: python3 register-artifact.py <html_file> "Title Here"
    or: echo '<html>...</html>' | python3 register-artifact.py - "Title Here"
 
-Writes the HTML file to /root/.hermes/artifacts/ and POSTs to the artifact server.
+Writes the HTML file to ~/.hermes/artifacts/ and POSTs to the artifact server.
 """
 import json, sys, urllib.request
 from pathlib import Path
+
+ARTIFACTS_DIR = Path.home() / ".hermes" / "artifacts"
 
 if len(sys.argv) < 3:
     print("Usage: register-artifact.py <html_file|-> \"Title\"")
@@ -23,8 +25,7 @@ else:
     html = Path(html_path).read_text(encoding="utf-8")
 
 # Save to artifacts dir
-artifacts_dir = Path("/root/.hermes/artifacts")
-artifacts_dir.mkdir(parents=True, exist_ok=True)
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 
 data = json.dumps({"title": title, "html": html}).encode()
 req = urllib.request.Request(

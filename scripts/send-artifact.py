@@ -149,6 +149,9 @@ def main():
     if html_path == "-":
         html = sys.stdin.read()
     else:
+        if not os.path.isfile(html_path):
+            print(f"ERROR: file not found: {html_path}", file=sys.stderr)
+            sys.exit(1)
         with open(html_path) as f:
             html = f.read()
 

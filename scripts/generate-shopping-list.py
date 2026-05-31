@@ -23,19 +23,20 @@ import json
 import os
 import re
 import sys
+from pathlib import Path
 
-TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "templates")
-TEMPLATE_PATH = os.path.join(TEMPLATE_DIR, "shopping-list.html")
+TEMPLATE_DIR = Path(__file__).parent.parent / "templates"
+TEMPLATE_PATH = TEMPLATE_DIR / "shopping-list.html"
 
 
 def build_items_js(items):
     """Convert item list to JS array literal for embedding in template."""
     lines = []
     for item in items:
+        obj = {"name": item["name"]}
         if "note" in item and item["note"]:
-            lines.append(f"  {{ name: '{item['name'].replace(chr(39), chr(39)+chr(92)+chr(39))}', note: '{item['note'].replace(chr(39), chr(39)+chr(92)+chr(39))}' }},")
-        else:
-            lines.append(f"  {{ name: '{item['name'].replace(chr(39), chr(39)+chr(92)+chr(39))}' }},")
+            obj["note"] = item["note"]
+        lines.append("  " + json.dumps(obj, ensure_ascii=False) + ",")
     return "\n" + "\n".join(lines) + "\n"
 
 

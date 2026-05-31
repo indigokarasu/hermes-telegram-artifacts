@@ -44,9 +44,10 @@ import json
 import os
 import re
 import sys
+from pathlib import Path
 
-TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "templates")
-TEMPLATE_PATH = os.path.join(TEMPLATE_DIR, "recipe.html")
+TEMPLATE_DIR = Path(__file__).parent.parent / "templates"
+TEMPLATE_PATH = TEMPLATE_DIR / "recipe.html"
 
 
 def build_sections_js(sections):

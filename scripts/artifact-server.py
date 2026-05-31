@@ -25,7 +25,6 @@ import argparse
 import hashlib
 import json
 import sys
-import urllib.parse
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
@@ -131,8 +130,8 @@ def _delete(aid):
 # TG lifecycle injection script (injected into served HTML)
 # ---------------------------------------------------------------------------
 
-def _tg_lifecycle_script(aid, title):
-    """JS that calls tg.ready(), tg.exitFullscreen(), and attempts answerWebAppQuery."""
+def _tg_lifecycle_script():
+    """JS that calls tg.ready() and tg.exitFullscreen()."""
     return (
         "<script>"
         "(function(){"
@@ -140,13 +139,6 @@ def _tg_lifecycle_script(aid, title):
         "if(!tg)return;"
         "try{tg.ready();}catch(e){}"
         "try{setTimeout(function(){tg.exitFullscreen();},100);}catch(e){}"
-        "if(tg.initDataUnsafe&&tg.initDataUnsafe.query_id){"
-        "var qid=tg.initDataUnsafe.query_id;"
-        "var payload=JSON.stringify({query_id:qid,artifact_id:" + json.dumps(aid)
-        + ",artifact_title:" + json.dumps(title) + "});"
-        'fetch("/api/answer-webapp",{method:"POST",headers:{"Content-Type":"application/json"},body:payload})'
-        ".catch(function(){});"
-        "}"
         "})();"
         "</script>"
     )
@@ -220,8 +212,11 @@ def _gallery_html():
     p.append("var card=btn.closest('.artifact');var id=card.dataset.id;")
     p.append("if(btn.classList.contains('btn-open')){window.open(base+'/artifact/'+id,'_blank');}")
     p.append("else if(btn.classList.contains('btn-delete')){")
-    p.append("if(confirm('Delete this artifact?')){")
-    p.append("fetch(base+'/artifact/'+id,{method:'DELETE'}).then(function(){card.remove();});}}")
+    p.append("var doDelete=function(){fetch(base+'/artifact/'+id,{method:'DELETE'}).then(function(){card.remove();});};")
+    p.append("if(window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.showConfirm){")
+    p.append("window.Telegram.WebApp.showConfirm('Delete this artifact?',function(ok){if(ok)doDelete();});}")
+    p.append("else{if(confirm('Delete this artifact?'))doDelete();}")
+    p.append("}")
     p.append("return;}")
     p.append("var hdr=e.target.closest('.artifact-header');")
     p.append("if(hdr){var card=hdr.parentElement;var fr=card.querySelector('.artifact-frame');")
@@ -296,16 +291,8 @@ class ArtifactHandler(BaseHTTPRequestHandler):
             aid = self.path[len("/artifact/"):]
             data, aid = _serve(aid)
             if data:
-                # Get title from index
-                idx = _load_index()
-                artifact_title = aid
-                for a in idx.get("artifacts", []):
-                    if a["id"] == aid:
-                        artifact_title = a.get("title", aid)
-                        break
-
                 # Inject TG lifecycle script before </body>
-                script = _tg_lifecycle_script(aid, artifact_title)
+                script = _tg_lifecycle_script()
                 if b"</body>" in data:
                     data = data.replace(b"</body>", script.encode() + b"</body>", 1)
                 else:

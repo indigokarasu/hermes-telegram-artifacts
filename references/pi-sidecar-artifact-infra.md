@@ -10,7 +10,6 @@ Serves artifact HTML with server-side injections (in order):
 1. **TG lifecycle script** — Injected before `</body>`:
    - Calls `tg.ready()` to signal readiness
    - Calls `tg.exitFullscreen()` to open at half-screen (compact mode)
-   - Attempts `answerWebAppQuery` (silently ignored — query_id not available for web_app buttons)
 
 ### POST /artifact
 Register a new artifact: `{"title": "...", "html": "..."}` → `{"id": "...", "title": "...", "timestamp": "..."}`

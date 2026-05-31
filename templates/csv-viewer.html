@@ -120,14 +120,44 @@ const CSV = `{{CSV_DATA}}`;
 
 function parseCSV(text) {
   const lines = text.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim());
+  const headers = parseCSVRow(lines[0]);
   const rows = lines.slice(1).map(line => {
-    const vals = line.split(',').map(v => v.trim());
+    const vals = parseCSVRow(line);
     const obj = {};
-    headers.forEach((h, i) => obj[h] = vals[i] || '');
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').trim());
     return obj;
   });
-  return { headers, rows };
+  return { headers: headers.map(h => h.trim()), rows };
+}
+
+function parseCSVRow(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        result.push(current);
+        current = '';
+      } else {
+        current += ch;
+      }
+    }
+  }
+  result.push(current);
+  return result;
 }
 
 function detectNumeric(rows, headers) {

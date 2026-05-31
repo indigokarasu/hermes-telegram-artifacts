@@ -19,8 +19,7 @@ HEAD = """<!DOCTYPE html>
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-:root{--bg:#f5f5f5;--card:#ffffff;--fg:#1a1a1a;--muted:#666;--cyan:#0ea5e9;--green:#16a34a;--red:#dc2626;--yellow:#d97706;--border:#e0e0e0;--input-bg:#f0f0f0}
-@media(prefers-color-scheme:dark){:root{--bg:#080c12;--card:rgba(18,22,30,.82);--fg:#e5e7eb;--muted:#9ca3af;--border:rgba(255,255,255,.06);--input-bg:rgba(255,255,255,.06)}}
+:root{--bg:var(--tg-theme-bg-color,#f5f5f5);--card:var(--tg-theme-section-bg-color,#ffffff);--fg:var(--tg-theme-text-color,#1a1a1a);--muted:var(--tg-theme-hint-color,#666);--cyan:var(--tg-theme-accent-text-color,#0ea5e9);--green:#16a34a;--red:#dc2626;--yellow:#d97706;--border:var(--tg-theme-section-separator-color,#e0e0e0);--input-bg:color-mix(in srgb,var(--fg) 5%,transparent)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);padding:16px;line-height:1.5}
 .card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
@@ -49,15 +48,7 @@ body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);paddi
 
 TAIL = """<script>
 const tg=(window.Telegram&&window.Telegram.WebApp)?window.Telegram.WebApp:null;
-if(tg&&tg.colorScheme==='light'){
-  document.documentElement.style.setProperty('--bg','#f5f5f5');
-  document.documentElement.style.setProperty('--card','#ffffff');
-  document.documentElement.style.setProperty('--fg','#1a1a1a');
-  document.documentElement.style.setProperty('--muted','#666');
-  document.documentElement.style.setProperty('--border','#e0e0e0');
-  document.body.style.background='#f5f5f5';
-}
-if(tg){tg.setHeaderColor('#f5f5f5');tg.setBackgroundColor('#f5f5f5');}
+if(tg){try{tg.ready();tg.setHeaderColor(tg.themeParams?.bg_color||'#f5f5f5');tg.setBackgroundColor(tg.themeParams?.bg_color||'#f5f5f5');tg.onEvent('themeChanged',function(){var p=tg.themeParams;if(p){tg.setHeaderColor(p.bg_color);tg.setBackgroundColor(p.bg_color);}});}catch(e){console.error('[TG]',e);}}
 </script>
 </body>
 </html>"""
