@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<style>
+:root {
+  --bg: var(--tg-theme-bg-color, #f5f5f5);
+  --card: var(--tg-theme-section-bg-color, #ffffff);
+  --fg: var(--tg-theme-text-color, #1a1a1a);
+  --muted: var(--tg-theme-hint-color, #666);
+  --accent: var(--tg-theme-accent-text-color, #0ea5e9);
+  --border: var(--tg-theme-section-separator-color, #e0e0e0);
+  --green: #16a34a;
+  --red: #dc2626;
+  --yellow: #d97706;
+}
+* { box-sizing: border-box; margin: 0; padding: 0 }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  padding: 16px;
+  line-height: 1.5;
+}
+.card {
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 6px }
+.value { font-size: 24px; font-weight: 600; font-family: 'SF Mono', monospace }
+.section-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted); margin-bottom: 10px;
+  padding-bottom: 6px; border-bottom: 0.5px solid var(--border);
+}
+.line {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 5px 0; font-size: 13px;
+}
+.line + .line { border-top: 0.5px solid var(--border) }
+.line-label { color: var(--fg); flex: 1 }
+.line-value { font-family: 'SF Mono', monospace; font-weight: 500; text-align: right; margin-left: 12px }
+.progress { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin: 4px 0 }
+.progress-fill { height: 100%; border-radius: 2px }
+.tag {
+  display: inline-block; font-size: 10px; padding: 2px 8px;
+  border-radius: 4px; font-weight: 500;
+}
+.result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px }
+.result-item { text-align: center; padding: 10px 0 }
+.result-label { font-size: 10px; color: var(--muted); margin-bottom: 2px; text-transform: uppercase }
+.result-num { font-size: 18px; font-weight: 600; font-family: 'SF Mono', monospace }
+</style>
+</head>
+<body>
+
+<!-- ═══ CONTENT GOES HERE ═══ -->
+
+<script>
+// Telegram Mini App init — keep minimal, CSS vars handle theming
+const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+if (tg) {
+  try {
+    tg.ready();
+    tg.setHeaderColor(tg.themeParams?.bg_color || '#f5f5f5');
+    tg.setBackgroundColor(tg.themeParams?.bg_color || '#f5f5f5');
+    tg.onEvent('themeChanged', function() {
+      var p = tg.themeParams;
+      if (p) {
+        tg.setHeaderColor(p.bg_color || '#f5f5f5');
+        tg.setBackgroundColor(p.bg_color || '#f5f5f5');
+      }
+    });
+  } catch(e) { console.error('[TG] Init failed:', e); }
+}
+
+// ═══ LOGIC GOES HERE ═══
+</script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+# Component Snippets — Copy, paste, adapt
+
+Reusable HTML blocks for building artifacts. All use the CSS variables from `template.html`.
+Each snippet is self-contained — grab it, change the text/data, wire up the JS.
+
+---
+
+## Timeline Card (day header + events)
+
+```html
+<div class="card">
+  <div class="section-title">Day 1 — Monday, Jun 15</div>
+  <div class="line">
+    <span class="line-label">09:00 <span class="line-note">Flight departs</span></span>
+    <span class="line-value">CPH → NRT</span>
+  </div>
+  <div class="line">
+    <span class="line-label">15:30 <span class="line-note">Arrive Narita</span></span>
+    <span class="line-value val-green">✈</span>
+  </div>
+  <div class="line">
+    <span class="line-label">17:00 <span class="line-note">Check in</span></span>
+    <span class="line-value">Hotel Gracery</span>
+  </div>
+</div>
+```
+
+---
+
+## Summary Row (3 metric boxes)
+
+```html
+<div class="result-grid">
+  <div class="result-item">
+    <div class="result-label">Total</div>
+    <div class="result-num primary">54.888 kr</div>
+  </div>
+  <div class="result-item">
+    <div class="result-label">Contributed</div>
+    <div class="result-num">130.000 kr</div>
+  </div>
+  <div class="result-item">
+    <div class="result-label">Interest</div>
+    <div class="result-num positive">172.370 kr</div>
+  </div>
+</div>
+```
+
+---
+
+## Tag Badges
+
+```html
+<!-- Inline tags on a line -->
+<div class="line">
+  <span class="line-label">Status <span class="tag tag-green">Confirmed</span></span>
+  <span class="line-value val-bold">1.250 kr</span>
+</div>
+
+<!-- Standalone tags -->
+<span class="tag tag-blue">Economy</span>
+<span class="tag tag-red">Urgent</span>
+<span class="tag tag-yellow">Pending</span>
+```
+
+---
+
+## Progress Bar
+
+```html
+<div style="margin:8px 0">
+  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px">
+    <span>Disk usage</span><span>22%</span>
+  </div>
+  <div class="progress">
+    <div class="progress-fill pfill-g" style="width:22%"></div>
+  </div>
+</div>
+```
+
+---
+
+## Budget / Line Items
+
+```html
+<div class="card">
+  <div class="section-title">Budget breakdown</div>
+  <div class="line"><span class="line-label">Flights</span><span class="line-note">2 × round trip</span><span class="line-value">8.400 kr</span></div>
+  <div class="line"><span class="line-label">Hotels</span><span class="line-note">7 nights</span><span class="line-value">12.600 kr</span></div>
+  <div class="line"><span class="line-label">Food</span><span class="line-note">~500 kr/day</span><span class="line-value">3.500 kr</span></div>
+  <div class="line"><span class="line-label">Transport</span><span class="line-note">JR Pass + metro</span><span class="line-value">2.800 kr</span></div>
+  <div class="subtotal">
+    <div class="line"><span class="line-label">Total estimated</span><span class="line-value val-primary">27.300 kr</span></div>
+  </div>
+</div>
+```
+
+---
+
+## Toggle Row (switch + label)
+
+```html
+<div class="toggle-row" style="border-top:0.5px solid var(--border);padding-top:8px">
+  <span class="toggle-row-label">Include taxes</span>
+  <label class="switch"><input type="checkbox" id="tax-toggle" onchange="update()"><span class="switch-slider"></span></label>
+</div>
+```
+
+---
+
+## Toggle Pills (daily/monthly/yearly)
+
+```html
+<div class="toggle-row">
+  <span class="toggle-row-label">Frequency</span>
+  <div class="toggles" id="freq-toggles">
+    <div class="toggle" data-val="daily" onclick="setFreq('daily')">Daily</div>
+    <div class="toggle active" data-val="monthly" onclick="setFreq('monthly')">Monthly</div>
+    <div class="toggle" data-val="yearly" onclick="setFreq('yearly')">Yearly</div>
+  </div>
+</div>
+
+<script>
+function setFreq(v){
+  document.querySelectorAll('#freq-toggles .toggle').forEach(t=>{
+    t.classList.toggle('active', t.dataset.val===v);
+  });
+  // recalculate...
+}
+</script>
+```
+
+---
+
+## Slider + Value Display
+
+```html
+<div class="field">
+  <div class="field-label">
+    <span class="field-name">Interest rate</span>
+    <span class="field-value" id="v-rate">7.0%</span>
+  </div>
+  <input type="range" id="s-rate" min="0" max="20" step="0.1" value="7" oninput="update()">
+</div>
+
+<script>
+// In your update() function:
+let rate = parseFloat(document.getElementById('s-rate').value);
+document.getElementById('v-rate').textContent = rate.toFixed(1) + '%';
+</script>
+```
+
+---
+
+## Comparison Card (before/after or option A/B)
+
+```html
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <div class="card" style="margin-bottom:0">
+    <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:8px">Option A</div>
+    <div style="font-size:18px;font-weight:600;color:var(--cyan);margin-bottom:4px">12.500 kr</div>
+    <div style="font-size:11px;color:var(--muted)">Direct flight · 10h</div>
+  </div>
+  <div class="card" style="margin-bottom:0">
+    <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:8px">Option B</div>
+    <div style="font-size:18px;font-weight:600;color:var(--green);margin-bottom:4px">8.200 kr</div>
+    <div style="font-size:11px;color:var(--muted)">1 stop · 16h</div>
+  </div>
+</div>
+```
+
+---
+
+## SVG Line Chart (minimal)
+
+```html
+<div class="card">
+  <div class="section-title">Growth over time</div>
+  <div id="chart" style="height:140px"></div>
+</div>
+
+<script>
+function drawChart(points, el) {
+  let W = el.clientWidth || 300, H = 140;
+  let pad = {top: 8, right: 8, bottom: 16, left: 0};
+  let maxVal = Math.max(...points.map(p => p.v), 1);
+  let n = points.length;
+  let x = i => pad.left + (i/(n-1)) * (W - pad.left - pad.right);
+  let y = v => pad.top + (H - pad.top - pad.bottom) - (v/maxVal) * (H - pad.top - pad.bottom);
+
+  let line = 'M' + points.map((p,i) => x(i)+','+y(p.v)).join(' L');
+  let area = line + ' L'+x(n-1)+','+y(0)+' L'+x(0)+','+y(0)+' Z';
+
+  el.innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
+    +'<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">'
+    +'<stop offset="0%" stop-color="var(--cyan)" stop-opacity="0.2"/>'
+    +'<stop offset="100%" stop-color="var(--cyan)" stop-opacity="0.02"/>'
+    +'</linearGradient></defs>'
+    +'<path d="'+area+'" fill="url(#ga)"/>'
+    +'<path d="'+line+'" fill="none" stroke="var(--cyan)" stroke-width="2"/>'
+    +'<circle cx="'+x(n-1)+'" cy="'+y(points[n-1].v)+'" r="3" fill="var(--cyan)"/>'
+    +'</svg>';
+}
+
+// Usage: drawChart([{v:100},{v:200},{v:350}], document.getElementById('chart'));
+</script>
+```
+
+---
+
+## Document Header (title + subtitle + tags)
+
+```html
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+    <div style="font-size:16px;font-weight:600">Document Title <span class="tag tag-blue">2025</span></div>
+  </div>
+  <div style="font-size:12px;color:var(--muted)">Subtitle or context line</div>
+</div>
+```
+
+---
+
+## Empty State
+
+```html
+<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">
+  No data yet — add some inputs above
+</div>
+```
