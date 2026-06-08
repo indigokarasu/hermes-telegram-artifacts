@@ -66,6 +66,23 @@ For deep links with `mode=compact`:
 - `HERMES_DASHBOARD_HOST` — was used for `answerWebAppQuery` inline result URLs. Dropped along with inline results. Host is now a CLI arg to `send-artifact.py`.
 - `HERMES_BOT_TOKEN` — was a separate env var. Now auto-discovered from `~/.hermes/.env`.
 
+## Registering Artifacts
+
+Before sending, the HTML must be registered with the artifact server:
+
+```bash
+# Using register-artifact.py (just registers, doesn't send):
+python3 ~/.hermes/skills/creative/artifact-builder/scripts/register-artifact.py \
+  /tmp/thing.html "Title"
+# Returns: Registered: <hex_id> — Title
+
+# Using send-artifact.py (registers + sends web_app button):
+python3 ~/.hermes/skills/creative/artifact-builder/scripts/send-artifact.py \
+  /tmp/thing.html "Title" <host> [chat_id] [thread_id]
+```
+
+The artifact server stores HTML on disk at `~/.hermes/artifacts/<id>.html` and serves it at `https://<host>/artifact/<id>`.
+
 ## Standalone Version
 
 For users NOT running Hermes, a portable version lives at:

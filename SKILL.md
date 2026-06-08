@@ -1,6 +1,6 @@
 ---
 name: artifact-builder
-description: "Build interactive HTML artifacts for the Telegram Mini App. Use for ANYTHING that benefits from being visual/interactive: recipes (with portion calculators), shopping lists (with localStorage), calculators, charts, diagrams, reference sheets, reports, and tools. When a user asks for food, recipes, meal planning, shopping, groceries, or anything that could be an interactive widget — build an artifact."
+description: "Build interactive HTML artifacts for the Telegram Mini App. Use for ANYTHING that benefits from being visual/interactive: weather (dynamic API data), recipes (with portion calculators), shopping lists (with localStorage), calculators, charts, diagrams, reference sheets, reports, and tools. When a user asks for food, recipes, meal planning, shopping, groceries, weather, or anything that could be an interactive widget — build an artifact."
 version: 2.7.0
 author: hermes
 platforms: [linux]
@@ -52,6 +52,7 @@ Each conversation is a topic inside one DM chat. The session context shows `thre
 **Use proactively.** Don't wait for the user to ask for a visualization. If a response contains 3+ numeric data points, a chart is better than prose. If explaining something interactive helps, build it.
 
 **Always build artifacts for:**
+- Weather, transit, or any live API data → dynamic artifact with loading state + error handling
 - Any recipe → artifact with portion calculator
 - Shopping lists, groceries → persistent checklist with localStorage
 - Charts, data visualization → inline SVG or Chart.js
@@ -255,6 +256,19 @@ function drawChart(points, el) {
 }
 ```
 
+## Dynamic Artifacts (API-Fetched Data)
+
+When an artifact needs to fetch live data from an API (weather, stocks, transit, etc.):
+
+1. **Always show a loading state** — spinner + label while fetching
+2. **Always handle errors** — show a message, don't leave a blank screen
+3. **Use `async function main()` pattern** — wrap everything in try/catch
+4. **Call `tg.expand()`** — dynamic content needs full viewport height
+5. **Use `textContent` for values, `createElement` for lists** — avoid innerHTML with untrusted data
+6. **IP geolocation via ipapi.co** — free, no auth, works in browser (not server-side)
+
+Full patterns, code snippets, and API references: `references/dynamic-artifact-patterns.md`
+
 ## Structured Path (generate-artifact.py)
 
 For data-driven artifacts, write JSON and generate:
@@ -369,6 +383,7 @@ Before exploring alternatives or questioning the approach, check these in order:
 - `references/telegram-inline-capabilities.md` — inline query capabilities
 - `references/webui-artifact-route.md` — WebUI artifact routing
 - `references/pi-sidecar-artifact-infra.md` — Pi sidecar infrastructure
+- `references/dynamic-artifact-patterns.md` — dynamic artifacts: loading states, API fetching, IP geolocation, weather data
 
 ## What Doesn't Work (Don't Try)
 
