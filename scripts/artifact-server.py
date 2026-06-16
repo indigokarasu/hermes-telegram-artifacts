@@ -132,6 +132,92 @@ def _delete(aid):
 
 
 # ---------------------------------------------------------------------------
+# Kanban board read-only endpoint
+# ---------------------------------------------------------------------------
+
+KANBAN_DB_PATH = Path.home() / ".hermes" / "kanban.json"
+
+# If a board-slug JSON exists (created by the kanban CLI pointing at a custom
+# path) we respect it; otherwise fall back to the default kanban.db next to the
+# Hermes home directory.
+def _kanban_db_path() -> Path:
+    if KANBAN_DB_PATH.exists():
+        try:
+            meta = json.loads(KANBAN_DB_PATH.read_text())
+            p = Path(meta.get("path", ""))
+            if p.exists():
+                return p
+        except Exception:
+            pass
+    return Path.home() / ".hermes" / "kanban.db"
+
+# Board columns the dashboard renders, in order.
+_KANBAN_COLUMNS: list[str] = [
+    "triage", "todo", "scheduled", "ready", "running", "blocked", "review", "done",
+]
+
+_TASK_LIST_COLS = "id,title,body,assignee,status,priority,created_at,started_at,completed_at,tenant"
+
+
+def _kanban_board(tag: str | None = None) -> dict:
+    """Return the full kanban board grouped by status column.
+
+    Mimics the shape the dashboard plugin returns so the Mini App can render
+    the same column layout without needing dashboard auth.
+
+    ``tag`` — optional tenant filter (the dashboard calls this "tenant").
+    """
+    import sqlite3  # stdlib, always available
+
+    db_path = _kanban_db_path()
+    if not db_path.exists():
+        return {"columns": [], "now": 0, "error": "kanban.db not found"}
+
+    conn = sqlite3.connect(str(db_path))
+    conn.row_factory = sqlite3.Row
+    try:
+        # Build WHERE clause for optional tag/tenant filter
+        params: list = []
+        where = "WHERE status != 'archived'"
+        if tag:
+            where += " AND tenant = ?"
+            params.append(tag)
+
+        rows = conn.execute(
+            f"SELECT {_TASK_LIST_COLS} FROM tasks {where} ORDER BY priority DESC, created_at ASC",
+            params,
+        ).fetchall()
+
+        columns: dict[str, list[dict]] = {c: [] for c in _KANBAN_COLUMNS}
+        now = int(__import__("time").time())
+
+        for r in rows:
+            task = {
+                "id": r["id"],
+                "title": r["title"],
+                "body": r["body"],
+                "assignee": r["assignee"],
+                "status": r["status"],
+                "priority": r["priority"],
+                "created_at": r["created_at"],
+                "started_at": r["started_at"],
+                "completed_at": r["completed_at"],
+                "tenant": r["tenant"],
+            }
+            col = r["status"] if r["status"] in columns else "todo"
+            columns[col].append(task)
+
+        return {
+            "columns": [
+                {"name": name, "tasks": columns[name]} for name in _KANBAN_COLUMNS
+            ],
+            "now": now,
+        }
+    finally:
+        conn.close()
+
+
+# ---------------------------------------------------------------------------
 # TG lifecycle injection script (injected into served HTML)
 # ---------------------------------------------------------------------------
 
@@ -294,7 +380,9 @@ class ArtifactHandler(BaseHTTPRequestHandler):
             return
 
         if self.path.startswith("/artifact/"):
-            aid = self.path[len("/artifact/"):]
+            # Strip query params from path
+            path_part = self.path.split("?", 1)[0]
+            aid = path_part[len("/artifact/"):]
             data, aid = _serve(aid)
             if data:
                 # Inject TG lifecycle script before </body>
@@ -312,6 +400,14 @@ class ArtifactHandler(BaseHTTPRequestHandler):
                 self.wfile.write(data)
             else:
                 self._respond(404, {"error": "artifact not found"})
+            return
+
+        if self.path == "/kanban":
+            try:
+                data = _kanban_board()
+                self._respond(200, data)
+            except Exception as e:
+                self._respond(500, {"error": str(e)})
             return
 
         self._respond(404, {"error": "not found"})
