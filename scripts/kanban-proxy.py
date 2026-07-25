@@ -21,11 +21,12 @@ from pathlib import Path
 # Config
 # ---------------------------------------------------------------------------
 
+HERMES_HOME = Path(os.environ.get("HERMES_HOME", os.path.expanduser("~/.hermes")))
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 if not BOT_TOKEN:
     for env_path in [
-        Path("/root/.hermes/profiles/indigo/home/.hermes/.env"),
-        Path("/root/.hermes/.env"),
+        HERMES_HOME / "profiles" / os.environ.get("HERMES_PROFILE", "") / "home" / ".hermes" / ".env",
+        HERMES_HOME / ".env",
     ]:
         if env_path.exists():
             for line in env_path.read_text().splitlines():
@@ -40,8 +41,8 @@ ALLOWED_USER_ID = int(os.environ.get("ALLOWED_TELEGRAM_USER_ID", "8666597030"))
 # Find the kanban DB
 KANBAN_DB_PATH = None
 for candidate in [
-    Path("/root/.hermes/kanban.db"),
-    Path("/root/.hermes/profiles/indigo/home/.hermes/kanban.db"),
+    HERMES_HOME / "kanban.db",
+    HERMES_HOME / "profiles" / os.environ.get("HERMES_PROFILE", "") / "home" / ".hermes" / "kanban.db",
     Path(os.environ.get("HERMES_HOME", "")) / "kanban.db" if os.environ.get("HERMES_HOME") else None,
 ]:
     if candidate and candidate.exists() and candidate.stat().st_size > 0:
@@ -49,7 +50,7 @@ for candidate in [
         break
 
 # Add hermes-agent to path so we can import kanban_db
-sys.path.insert(0, "/root/hermes-agent")
+sys.path.insert(0, os.environ.get("HERMES_AGENT_PATH", os.path.expanduser("~/hermes-agent")))
 
 BOARD_COLUMNS = ["triage", "todo", "scheduled", "ready", "running", "blocked", "review", "done"]
 
