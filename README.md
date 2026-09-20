@@ -1,7 +1,7 @@
 # hermes-telegram-artifacts
 
 <p align="center">
-<img src="./assets/readme/hero.svg" width="100%" alt="Standalone artifact server + skill for delivering interactive HTML widgets via Telegram Mini Apps in Hermes Agent">
+<img src="./assets/readme/hero.jpg" width="100%" alt="Standalone artifact server + skill for delivering interactive HTML widgets via Telegram Mini Apps in Hermes Agent">
 </p>
 
 hermes-telegram-artifacts - Standalone artifact server + skill for delivering interactive HTML widgets via Telegram Mini Apps in Hermes Agent
